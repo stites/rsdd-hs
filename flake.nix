@@ -1,18 +1,17 @@
 # file: flake.nix
 {
   inputs = {
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    #rsdd.url = "github:stites/rsdd/4969c0c?dir=nix";
+    rsdd.url = "path:/home/stites/git/haskell/active/rsdd/nix";
+    flake-parts.follows = "rsdd/flake-parts";
+    nixpkgs.follows = "rsdd/nixpkgs";
+    treefmt-nix.follows = "rsdd/nci/treefmt";
+
     haskell-flake.url = "github:srid/haskell-flake";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
-
-    rsdd.url = "github:stites/rsdd/4969c0c?dir=nix";
-    #rsdd.url = "path:/home/stites/git/rust/rsdd-ng/nix";
-
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     flake-root.url = "github:srid/flake-root";
     mission-control.url = "github:Platonic-Systems/mission-control";
-    cachix-push.url = "github:juspay/cachix-push";
+    #cachix-push.url = "github:juspay/cachix-push";
   };
 
   outputs = inputs:
@@ -23,32 +22,28 @@
         inputs.treefmt-nix.flakeModule
         inputs.flake-root.flakeModule
         inputs.mission-control.flakeModule
-        inputs.cachix-push.flakeModule
       ];
-      flake.haskellFlakeProjectModules.default = { ... }: {
-        #packages = {
-        #  #rsdd-hs.source = ;
-        #};
-      };
+      #flake.haskellFlakeProjectModules.default = { config, ... }: {
+      #  # packages = {
+      #  #   rsdd-hs.source = config.packages.rsdd;
+      #  # };
+      #};
       perSystem = { inputs', self', system, lib, config, pkgs, ... }: {
-        cachix-push.cacheName = "stites";
+        #cachix-push.cacheName = "stites";
         packages = {
-          default = self'.packages.rsdd-hs;
-          rsdd = inputs'.rsdd.packages.rsdd.overrideAttrs (old: {
-          #rsdd = (pkgs.callPackage ./rsdd/nix {}).overrideAttrs (old: {
-            # getting a lot of thrash on the API -- might as well disable this for now.
-            doCheck = false;
-          });
+          #default = self'.packages.rsdd-hs;
+          rsdd = inputs'.rsdd.packages.rsdd-nocheck;
         };
         haskellProjects.default = {
           basePackages = pkgs.haskell.packages.ghc94.extend (
             final: prev: {
               # seems like a dirty hack since this is a rust package...
-              inherit (config.packages) rsdd;
+              #inherit (config.packages) rsdd;
             }
           );
           # NOTE: doesn't seem to work...
-          # settings.rsdd-hs = { ... }: {
+          # packages = { rsdd.source = self'.packages.rsdd; };
+          #settings.rsdd = {...}: { custom = _: self'.packages.rsdd; };
           #   extraBuildDepends = [ config.packages.rsdd ];
           # };
           devShell = {
@@ -57,7 +52,9 @@
               treefmt = config.treefmt.build.wrapper;
             } // config.treefmt.build.programs;
           };
-          autoWire = [ "packages" "apps" "checks" ]; # Wire all but the devShell
+          autoWire = [ "packages"
+                       "apps"
+                       "checks" ]; # Wire all but the devShell
         };
 
         treefmt.config = {
@@ -88,34 +85,34 @@
             exec = config.treefmt.build.wrapper;
             category = "Dev Tools";
           };
-          run = {
-            description = "Run the project with ghcid auto-recompile";
-            exec = ''
-              ghcid -c "cabal repl lib:rsdd-hs --extra-lib-dirs=${config.packages.rsdd}/lib" --warnings
-            '';
-            category = "Primary";
-          };
-          run-example = {
-            description = "Run the project with ghcid auto-recompile";
-            exec = ''
-              ghcid -c "cabal repl exe:example --extra-lib-dirs=${config.packages.rsdd}/lib" --warnings -T :main
-            '';
-            category = "Primary";
-          };
+          # run = {
+          #   description = "Run the project with ghcid auto-recompile";
+          #   exec = ''
+          #     ghcid -c "cabal repl lib:rsdd-hs --extra-lib-dirs=${config.packages.rsdd}/lib" --warnings
+          #   '';
+          #   category = "Primary";
+          # };
+          # run-example = {
+          #   description = "Run the project with ghcid auto-recompile";
+          #   exec = ''
+          #     ghcid -c "cabal repl exe:example --extra-lib-dirs=${config.packages.rsdd}/lib" --warnings -T :main
+          #   '';
+          #   category = "Primary";
+          # };
         };
 
-        devShells.default = pkgs.mkShell {
-          name = "development shell";
-          inputsFrom = [
-            config.haskellProjects.default.outputs.devShell
-            config.treefmt.build.devShell
-            config.flake-root.devShell
-            config.mission-control.devShell
-          ];
-          nativeBuildInputs = [
-            config.packages.rsdd
-          ];
-        };
+        #devShells.default = pkgs.mkShell {
+        #  name = "development shell";
+        #  inputsFrom = [
+        #    config.haskellProjects.default.outputs.devShell
+        #    config.treefmt.build.devShell
+        #    config.flake-root.devShell
+        #    config.mission-control.devShell
+        #  ];
+        #  nativeBuildInputs = [
+        #  # config.packages.rsdd
+        #  ];
+        #};
       };
     };
 }

@@ -31,11 +31,23 @@ common base
   default-language: GHC2021
   ghc-options:      -Wall
   build-depends:    base
-                 -- base ^>=4.17.0.0
+  extra-lib-dirs: /home/stites/git/haskell/active/rsdd/target/debug/
 
 library
   import:          base
-  exposed-modules: Foreign.RSDD
+  exposed-modules:
+    Foreign.RSDD
+    Foreign.RSDD.Data
+    Foreign.RSDD.Bdd
+    Foreign.RSDD.Bdd.Internal
+    Foreign.RSDD.Cnf.Internal
+    Foreign.RSDD.Wmc.Internal
+    -- TODO
+    -- Foreign.RSDD.DDnnf.Internal
+    -- Foreign.RSDD.DTree.Internal
+    -- Foreign.RSDD.Sdd.Internal
+    -- Foreign.RSDD.Var.Internal
+    -- Foreign.RSDD.VTree.Internal
   extra-libraries: rsdd
   hs-source-dirs:  lib
 
@@ -45,6 +57,13 @@ test-suite rsdd-hs-test
   hs-source-dirs: test
   main-is:        Main.hs
   build-depends:  rsdd-hs
+    , hspec
+    , tasty
+    , tasty-hspec
+    , hedgehog
+    , hspec-hedgehog
+    , doctest
+
 
 executable example
   import:         base
