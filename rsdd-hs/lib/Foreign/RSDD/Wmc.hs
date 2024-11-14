@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 module Foreign.RSDD.Wmc
-  ( wmcParams
+  ( wmcParamsIO
+  , wmcParams
   , setWeight
   , setHigh
   , setLow
@@ -10,15 +11,19 @@ module Foreign.RSDD.Wmc
   ) where
 
 import Foreign.RSDD.Data
-import Foreign.RSDD.Wmc.Internal as I
+import Foreign.RSDD.Wmc.Internal
 
-import System.IO.Unsafe
-import GHC.TypeNats
-import Control.Monad.IO.Class
+import System.IO.Unsafe (unsafePerformIO)
+import GHC.TypeNats (KnownNat, natVal)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Proxy (Proxy(..))
 
-wmcParams :: MonadIO io => io WmcParams
-wmcParams = liftIO c_wmc_params
+wmcParamsIO :: MonadIO io => io WmcParams
+wmcParamsIO = liftIO c_wmc_params
+
+{-# NOINLINE wmcParams #-}
+wmcParams :: WmcParams
+wmcParams = unsafePerformIO wmcParamsIO
 
 set_weight :: WmcParams -> VarLabel -> Weight -> IO ()
 set_weight wm (VarLabel n) w = c_wmc_param_f64_set_weight wm (fromIntegral n) (lo w) (hi w)

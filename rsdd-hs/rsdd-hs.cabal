@@ -41,6 +41,7 @@ library
     Foreign.RSDD.Bdd
     Foreign.RSDD.Bdd.Internal
     Foreign.RSDD.Cnf.Internal
+    Foreign.RSDD.Wmc
     Foreign.RSDD.Wmc.Internal
     -- TODO
     -- Foreign.RSDD.DDnnf.Internal

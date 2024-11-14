@@ -1,0 +1,20 @@
+cabal-version: 3.4
+name:          effectful-rsdd
+version:       0.1.0.0
+license:
+author:        Sam Stites
+maintainer:    Sam Stites <spnony@f.cge.qri>#rot13
+build-type:    Simple
+
+common base
+  default-language: GHC2021
+  build-depends:
+    , base
+    , effectful-core
+    , rsdd-hs
+
+library
+  import:          base
+  hs-source-dirs:  src
+  exposed-modules:
+    Effectful.RSDD

@@ -1,2 +1,3 @@
 packages:
   rsdd-hs/*.cabal
+  effectful-rsdd/*.cabal
