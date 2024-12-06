@@ -29,6 +29,7 @@ newtype Cnf = Cnf (Ptr RawCnf)
 newtype Clause = Clause (Ptr RawCnf)
 
 newtype BddPtr = BddPtr (Ptr RawBddPtr)
+  deriving Eq
 
 newtype VarLabel = VarLabel Natural
   deriving (Show, Eq, Ord)

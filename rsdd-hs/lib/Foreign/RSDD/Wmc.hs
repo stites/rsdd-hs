@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 module Foreign.RSDD.Wmc
   ( wmcParamsIO
-  , wmcParams
   , setWeight
   , setHigh
   , setLow
@@ -13,17 +12,17 @@ module Foreign.RSDD.Wmc
 import Foreign.RSDD.Data
 import Foreign.RSDD.Wmc.Internal
 
+
+
 import System.IO.Unsafe (unsafePerformIO)
 import GHC.TypeNats (KnownNat, natVal)
+import GHC.Utils.Panic
+import GHC.Utils.Exception
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Proxy (Proxy(..))
 
 wmcParamsIO :: MonadIO io => io WmcParams
 wmcParamsIO = liftIO c_wmc_params
-
-{-# NOINLINE wmcParams #-}
-wmcParams :: WmcParams
-wmcParams = unsafePerformIO wmcParamsIO
 
 set_weight :: WmcParams -> VarLabel -> Weight -> IO ()
 set_weight wm (VarLabel n) w = c_wmc_param_f64_set_weight wm (fromIntegral n) (lo w) (hi w)
@@ -61,12 +60,15 @@ setLowP w = setLow wm
     wm :: WmcParamsT 1
     wm = mkTypedWmcParams w
 
-varWeight :: WmcParams -> VarLabel -> Weight
-varWeight wm (VarLabel v) = unsafePerformIO $
-  c_wmc_param_f64_var_weight wm (fromIntegral v) >>= \n ->
-    Weight
-      <$> c_weight_f64_lo n
-      <*> c_weight_f64_hi n
+varWeight :: WmcParams -> VarLabel -> Maybe Weight
+varWeight wm (VarLabel v)
+  = unsafePerformIO
+  $ flip catch (\(e::SomeException) -> pure Nothing) -- FIXME: this doesn't seem to be working
+  $ c_wmc_param_f64_var_weight wm (fromIntegral v) >>= \n -> do
+    lo <- c_weight_f64_lo n
+    hi <- c_weight_f64_hi n
+    pure . Just $ Weight lo hi
+
 
 -------------------------
 

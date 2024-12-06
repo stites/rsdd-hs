@@ -17,7 +17,7 @@ main = do
   print $ varWeight w la
   print $ varWeight w lb
   a_or_b <- bddOr mgr a b
-  printBdd a_or_b >>= putStrLn
+  prettyBddIO a_or_b >>= putStrLn
   let x = bddWmc a_or_b w
   print ("hello", x)
   print $ bddEq mgr a b

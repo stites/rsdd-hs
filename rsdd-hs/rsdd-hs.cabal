@@ -30,7 +30,7 @@ extra-doc-files: CHANGELOG.org
 common base
   default-language: GHC2021
   ghc-options:      -Wall
-  build-depends:    base
+  build-depends:    base, ghc
   extra-lib-dirs: /home/stites/git/haskell/active/rsdd/target/debug/
 
 library
@@ -52,7 +52,7 @@ library
   extra-libraries: rsdd
   hs-source-dirs:  lib
 
-test-suite rsdd-hs-test
+test-suite test
   import:         base
   type:           exitcode-stdio-1.0
   hs-source-dirs: test

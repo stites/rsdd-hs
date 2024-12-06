@@ -15,24 +15,24 @@ module Effectful.RSDD
     bddAnd,
     bddOr,
     bddNeg,
+    bddEq,
     RSDD.isTrue,
     RSDD.isFalse,
     RSDD.isConst,
     RSDD.ptrTrue,
     RSDD.ptrFalse,
-    RSDD.bddEq,
     RSDD.topvar,
     RSDD.low,
     RSDD.high,
-    RSDD.wmc,
+    RSDD.diceInf,
+    RSDD.diceInfMany,
     RSDD.bddWmc,
     RSDD.mkTypedWmcParams,
-    bddWmc',
     setWeights,
     setHigh1,
     setLow1,
     RSDD.varWeight,
-    RSDD.printBdd,
+    RSDD.prettyBddIO,
     BddBuilder,
     VarOrder,
     Cnf,
@@ -106,19 +106,17 @@ bddOr a b = ask >>= \m -> liftIO $ RSDD.bddOr m a b
 bddNeg :: (IOE :> es) => (Reader BddBuilder :> es) => BddPtr -> Eff es BddPtr
 bddNeg a = ask >>= \m -> liftIO $ RSDD.bddNeg m a
 
-setWeights :: (IOE :> es) => WmcParams -> VarLabel -> RSDD.Weight -> Eff es ()
-setWeights a b c = liftIO $ RSDD.setWeight a b c
+bddEq :: (IOE :> es) => (Reader BddBuilder :> es) => BddPtr -> BddPtr -> Eff es Bool
+bddEq a b = ask >>= \m -> pure $ RSDD.bddEq m a b
 
-setHigh1 :: (IOE :> es) => RSDD.WmcParams -> VarLabel -> Double -> Eff es ()
-setHigh1 w l h = liftIO $ RSDD.setHigh wmc l h
-  where
-    wmc :: RSDD.WmcParamsT 1
-    wmc = RSDD.mkTypedWmcParams w
+varWeight :: (IOE :> es) => (Reader WmcParams :> es) => VarLabel -> Eff es (Maybe RSDD.Weight)
+varWeight a = flip RSDD.varWeight a <$> ask
 
-setLow1 :: (IOE :> es) => RSDD.WmcParams -> VarLabel -> Double -> Eff es ()
-setLow1 w l h = liftIO $ RSDD.setLow wmc l h
-  where
-    wmc :: RSDD.WmcParamsT 1
-    wmc = RSDD.mkTypedWmcParams w
+setWeights :: (IOE :> es) => (Reader WmcParams :> es) => VarLabel -> RSDD.Weight -> Eff es ()
+setWeights a b = ask >>= \ps -> liftIO $ RSDD.setWeight ps a b
 
-bddWmc' = flip RSDD.bddWmc
+setHigh1 :: (IOE :> es) => (Reader WmcParams :> es) => VarLabel -> Double -> Eff es ()
+setHigh1 l h = RSDD.mkTypedWmcParams @1 <$> ask >>= \wmc -> liftIO $ RSDD.setHigh wmc l h
+
+setLow1 :: (IOE :> es) => (Reader WmcParams :> es) => VarLabel -> Double -> Eff es ()
+setLow1 l h = RSDD.mkTypedWmcParams @1 <$> ask >>= \wmc -> liftIO $ RSDD.setLow wmc l h

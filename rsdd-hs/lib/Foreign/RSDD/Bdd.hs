@@ -1,6 +1,7 @@
 {-# LANGUAGE CApiFFI #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE Strict #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 module Foreign.RSDD.Bdd
   ( varOrderLinear
   , roBddBuilderAllTable
@@ -26,23 +27,20 @@ module Foreign.RSDD.Bdd
   , I.low
   , I.high
   , I.bddWmc
-  , wmc
-  , wmc1
-  , printBdd
+  , diceInf
+  , diceInfMany
+  , prettyBddIO
   , numRecursiveCalls
   ) where
 
 import Foreign.RSDD.Data
 import Foreign.RSDD.Bdd.Internal as I
 
-import Foreign
 import Foreign.C.String
-import Foreign.C.Types
 import GHC.Natural
-import GHC.TypeNats
-import Data.Proxy
 import System.IO.Unsafe
 import Control.Monad.IO.Class
+
 
 -- return a variable order for a given number of variables
 varOrderLinear :: Natural -> VarOrder
@@ -75,7 +73,7 @@ newBddPtr mgr pol = snd <$> newVar mgr pol
 ite :: MonadIO io => BddBuilder -> BddPtr -> BddPtr -> BddPtr -> io BddPtr
 ite a b c d = liftIO $ c_bdd_ite a b c d
 
--- BDD operations: if and only if
+-- FIXME: apparently this is less optimal than the rsdd library iff.
 iff :: MonadIO io => BddBuilder -> BddPtr -> BddPtr -> io BddPtr
 iff m f g = bddNeg m g >>= ite m f g
 
@@ -103,25 +101,29 @@ fromBool False = ptrFalse
 topvar :: BddPtr -> VarLabel
 topvar ptr = unsafePerformIO $ VarLabel . fromIntegral <$> c_bdd_topvar ptr
 
-wmc :: BddBuilder -> WmcParams -> [BddPtr] -> Accept -> [Double]
-wmc m w qs a = unsafePerformIO $ do
+diceInfMany :: BddBuilder -> WmcParams -> [BddPtr] -> Accept -> [Double]
+diceInfMany m w qs a = unsafePerformIO $ do
   ns :: [BddPtr] <- mapM (bddAnd m $ accepting a) qs
   pure $ fmap (\n -> bddWmc n w / z) ns
   where
       z = bddWmc (accepting a) w
 
-wmc1 :: BddBuilder -> WmcParams -> BddPtr -> Accept -> Double
-wmc1 m w q a = head $ wmc m w [q] a
+diceInf :: BddBuilder -> WmcParams -> BddPtr -> Accept -> Double
+diceInf m w q a = head $ diceInfMany m w [q] a
 
-print_bdd :: BddPtr -> IO String
-print_bdd ptr = c_print_bdd ptr >>= peekCString
+pretty_bdd :: BddPtr -> IO String
+pretty_bdd ptr = c_print_bdd ptr >>= peekCString
 
-printBdd :: MonadIO io => BddPtr -> io String
-printBdd = liftIO . print_bdd
+prettyBddIO :: MonadIO io => BddPtr -> io String
+prettyBddIO = liftIO . pretty_bdd
 
 instance Show BddPtr where
-  show = unsafePerformIO . printBdd
+  show b@(BddPtr p) = unsafePerformIO $ do
+    pretty <- prettyBddIO b
+    pure $ "BddPtr(" <> show p <> "): " <> pretty
+
+instance Show Accept where
+  show (Accept bdd) = "Accept " <> show bdd
 
 numRecursiveCalls :: BddBuilder -> Natural
 numRecursiveCalls = fromIntegral . c_bdd_num_recursive_calls
-

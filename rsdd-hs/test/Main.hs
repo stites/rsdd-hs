@@ -10,7 +10,7 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
   describe "show instance" $ do
     it "shows the right representations" $ \mgr -> do
       (la, a) <- newVar mgr True
-      show a `shouldBe` "(0, F, T)"
+      prettyBddIO a >>= (`shouldBe` "(0, F, T)")
       show la `shouldBe` "VarLabel 0"
   describe "bddEq" $ do
     context "constant equality" $ do
@@ -33,14 +33,41 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
         bddEq mgr a b `shouldBe` False
 
   describe "ite" $ do
-    it "choses the correct constant" $ \mgr -> do
-      pendingWith "fix equality"
+    it "shows the correct constant" $ \mgr -> do
       let tt = ptrTrue
       let ff = ptrFalse
       ret <- ite mgr tt tt ff
-      show ret `shouldBe` "T"
+      prettyBddIO ret >>= (`shouldBe` "T")
       ret <- ite mgr ff tt ff
-      show ret `shouldBe` "F"
+      prettyBddIO ret >>= (`shouldBe` "F")
+    it "returns a new pointer, so equality on the nose fails" $ \mgr -> do
+      let tt = ptrTrue
+      let ff = ptrFalse
+      ret <- ite mgr tt tt ff
+      ret == tt `shouldBe` False
+      ret <- ite mgr ff tt ff
+      ret == ff `shouldBe` False
+    it "is equal by bdd equality" $ \mgr -> do
+      let tt = ptrTrue
+      let ff = ptrFalse
+      ret <- ite mgr tt tt ff
+      bddEq mgr ret tt `shouldBe` True
+      ret <- ite mgr ff tt ff
+      bddEq mgr ret ff `shouldBe` True
+
+  describe "wmc" $ do
+    it "can initialize as empty and have weights added" $ \_ -> do
+      p <- wmcParamsIO
+      let w = Weight { hi = 1/3, lo = 2/3 }
+      let l = (VarLabel 0)
+      setWeight p l w
+      let w' = varWeight p l
+      w' `shouldBe` w
+
+      -- setWeight w lb $ Weight { hi = 1/4, lo = 3/4 }
+
+
+
 
 
 
@@ -50,9 +77,6 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
 --   print b
 --   ite mgr a b t >>= print
 --   ite mgr t t t >>= print
---   let w = newWmc
---   setWeight w la $ Weight { hi = 1/3, lo = 2/3 }
---   setWeight w lb $ Weight { hi = 1/4, lo = 3/4 }
 --   print $ varWeight w la
 --   print $ varWeight w lb
 --   a_or_b <- bddOr mgr a b
