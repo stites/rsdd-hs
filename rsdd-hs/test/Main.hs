@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 module Main (main) where
 
 import Foreign.RSDD
@@ -15,8 +16,6 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
   describe "bddEq" $ do
     context "constant equality" $ do
       it "is reflexive" $ \mgr -> do
-        let tt = ptrTrue
-        let ff = ptrFalse
         bddEq mgr ptrTrue ptrTrue `shouldBe` True
         bddEq mgr ptrFalse ptrFalse `shouldBe` True
       it "ff /= tt" $ \mgr -> do
@@ -62,7 +61,7 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
       let l = (VarLabel 0)
       setWeight p l w
       let w' = varWeight p l
-      w' `shouldBe` w
+      w' `shouldBe` Just w
 
       -- setWeight w lb $ Weight { hi = 1/4, lo = 3/4 }
 
