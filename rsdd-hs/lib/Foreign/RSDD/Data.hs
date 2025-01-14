@@ -4,6 +4,7 @@ module Foreign.RSDD.Data where
 import Foreign (Ptr)
 import GHC.Natural (Natural)
 import GHC.TypeNats (Nat)
+import Data.Hashable (Hashable)
 
 -- dummy rust data types
 data RawRsddBddBuilder
@@ -32,7 +33,7 @@ newtype BddPtr = BddPtr (Ptr RawBddPtr)
   deriving Eq
 
 newtype VarLabel = VarLabel Natural
-  deriving (Show, Eq, Ord)
+  deriving (Show, Eq, Ord, Hashable)
 
 newtype WmcParams = WmcParams (Ptr RawRsddWmcParamsR)
 

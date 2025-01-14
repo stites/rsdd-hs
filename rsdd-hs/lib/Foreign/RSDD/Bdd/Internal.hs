@@ -77,7 +77,7 @@ foreign import ccall unsafe "bdd_false"
 
 -- Compare two BDD nodes for equality
 foreign import ccall unsafe "bdd_eq"
-  bddEq :: BddBuilder -> BddPtr -> BddPtr -> Bool
+  bddEq :: BddBuilder -> BddPtr -> BddPtr -> IO Bool
 
 -- Get the top variable of a BDD node
 foreign import ccall unsafe "bdd_topvar"

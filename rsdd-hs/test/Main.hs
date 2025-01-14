@@ -16,20 +16,23 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
   describe "bddEq" $ do
     context "constant equality" $ do
       it "is reflexive" $ \mgr -> do
-        bddEq mgr ptrTrue ptrTrue `shouldBe` True
-        bddEq mgr ptrFalse ptrFalse `shouldBe` True
+        bddEq mgr ptrTrue ptrTrue >>= (`shouldBe` True)
+        bddEq mgr ptrFalse ptrFalse >>= (`shouldBe` True)
       it "ff /= tt" $ \mgr -> do
-        bddEq mgr ptrFalse ptrTrue `shouldBe` False
+        bddEq mgr ptrFalse ptrTrue >>= (`shouldBe` False)
       it "tt /= ff" $ \mgr -> do
-        bddEq mgr ptrTrue ptrFalse `shouldBe` False
+        bddEq mgr ptrTrue ptrFalse >>= (`shouldBe` False)
     context "variable equality" $ do
       it "is reflexive" $ \mgr -> do
         a <- newBddPtr mgr True
-        bddEq mgr a a `shouldBe` True
+        bddEq mgr a a >>= (`shouldBe` True)
       it "is false for different variables" $ \mgr -> do
-        a <- newBddPtr mgr True
-        b <- newBddPtr mgr True
-        bddEq mgr a b `shouldBe` False
+        (la, a) <- newVar mgr True
+        (lb, b) <- newVar mgr True
+        print (la, a)
+        print (lb, b)
+        (bddEq mgr a b) >>= print
+        bddEq mgr a b >>= (`shouldBe` False)
 
   describe "ite" $ do
     it "shows the correct constant" $ \mgr -> do
@@ -50,9 +53,9 @@ main = hspec $ around (bracket (roBddBuilderDefaultOrder 0)  (const $ pure ())) 
       let tt = ptrTrue
       let ff = ptrFalse
       ret <- ite mgr tt tt ff
-      bddEq mgr ret tt `shouldBe` True
+      bddEq mgr ret tt >>= (`shouldBe` True)
       ret <- ite mgr ff tt ff
-      bddEq mgr ret ff `shouldBe` True
+      bddEq mgr ret ff >>= (`shouldBe` True)
 
   describe "wmc" $ do
     it "can initialize as empty and have weights added" $ \_ -> do

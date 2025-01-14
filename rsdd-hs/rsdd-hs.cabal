@@ -51,6 +51,7 @@ library
     -- Foreign.RSDD.VTree.Internal
   extra-libraries: rsdd
   hs-source-dirs:  lib
+  build-depends:   hashable
 
 test-suite test
   import:         base

@@ -20,6 +20,6 @@ main = do
   prettyBddIO a_or_b >>= putStrLn
   let x = bddWmc a_or_b w
   print ("hello", x)
-  print $ bddEq mgr a b
+  bddEq mgr a b >>= print
   pure ()
   where t = ptrTrue
