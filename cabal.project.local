@@ -1,0 +1,7 @@
+-- bddEq doesn't like nix binaries and so this must be a local build. Not sure
+-- what is up with this, but I'm too exhausted to figure it out. As a result, this
+-- cabal.project.local is included in source and fixing this for other people
+-- is left as a big TODO item.
+package rsdd-hs
+  extra-lib-dirs: /home/stites/dev/rsdd/target/debug
+  tests: True
