@@ -3,5 +3,6 @@
 -- cabal.project.local is included in source and fixing this for other people
 -- is left as a big TODO item.
 package rsdd-hs
-  extra-lib-dirs: /home/stites/dev/rsdd/target/debug
+  -- extra-lib-dirs: /home/stites/dev/rsdd/target/debug
+  -- extra-lib-dirs: /home/stites/git/haskell/active/rsdd/target/debug/
   tests: True

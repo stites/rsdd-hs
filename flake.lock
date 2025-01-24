@@ -79,17 +79,17 @@
       },
       "locked": {
         "dir": "nix",
-        "lastModified": 1736891188,
-        "narHash": "sha256-Qe8d+pCC9NOl0Np5EVtsD7yPfx2CJAuHB9sSKfHf2FM=",
+        "lastModified": 1737685039,
+        "narHash": "sha256-kRMK711aa0uS080TaYQQ18/yzOrHMAq7ZIRy5rx6KAM=",
         "owner": "stites",
         "repo": "rsdd",
-        "rev": "2a04a70dcb8d77121b26be967cb54f96588572a0",
+        "rev": "8c95f70593e309f4aac4fedfd2686478e3ae743b",
         "type": "github"
       },
       "original": {
         "dir": "nix",
         "owner": "stites",
-        "ref": "2a04a70",
+        "ref": "8c95f70",
         "repo": "rsdd",
         "type": "github"
       }

@@ -31,7 +31,9 @@ common base
   default-language: GHC2021
   ghc-options:      -Wall
   build-depends:    base, ghc
-  extra-lib-dirs: /home/stites/git/haskell/active/rsdd/target/debug/
+  -- extra-lib-dirs: /home/stites/dev/rsdd/target/debug
+  -- extra-lib-dirs: /home/stites/git/haskell/active/rsdd/target/debug/
+  -- extra-lib-dirs: /home/stites/dev/rsdd/target/debug/
 
 library
   import:          base

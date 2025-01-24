@@ -1,6 +1,6 @@
 {
   inputs = {
-    rsdd.url = "github:stites/rsdd/2a04a70?dir=nix";
+    rsdd.url = "github:stites/rsdd/8c95f70?dir=nix";
     flake-parts.follows = "rsdd/flake-parts";
     nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
   };
@@ -14,7 +14,7 @@
         pkgs,
         ...
       }: let
-        rsdd = inputs'.rsdd.packages.rsdd;
+        rsdd = inputs'.rsdd.packages.rsdd-debug;
         haskellPackages = pkgs.haskellPackages.override {
           overrides = final: prev: {
             rsdd-hs = pkgs.haskellPackages.callCabal2nix "rsdd-hs" ./rsdd-hs {
@@ -33,15 +33,17 @@
         devShells.default =
           haskellPackages.shellFor {
             packages = p: with p; [rsdd-hs effectful-rsdd];
+            # packages = p: with p; [];
             withHoogle = true;
             genericBuilderArgsModifier = args: args // { doCheck = false; };
-            extraDependencies = p: {
-              libraryHaskellDepends = [ config.packages.rsdd ];
-            }; 
+            # extraDependencies = p: {
+            #   libraryHaskellDepends = [ config.packages.rsdd ];
+            # }; 
             buildInputs = with pkgs; [
-              (writeScriptBin "cabal" ''
-                ${cabal-install}/bin/cabal --extra-lib-dirs=${config.packages.rsdd}/lib "$@"
-              '')
+              cabal-install
+              # (writeScriptBin "cabal" ''
+              #   ${cabal-install}/bin/cabal --extra-lib-dirs=${config.packages.rsdd}/lib "$@"
+              # '')
               haskell-language-server
               pkg-config
               ghciwatch

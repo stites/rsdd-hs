@@ -28,6 +28,8 @@ module Effectful.RSDD
     RSDD.diceInfMany,
     RSDD.bddWmc,
     RSDD.mkTypedWmcParams,
+    runWmc,
+    evalWmc,
     setWeights,
     setHigh1,
     setLow1,
@@ -107,7 +109,18 @@ bddNeg :: (IOE :> es) => (Reader BddBuilder :> es) => BddPtr -> Eff es BddPtr
 bddNeg a = ask >>= \m -> liftIO $ RSDD.bddNeg m a
 
 bddEq :: (IOE :> es) => (Reader BddBuilder :> es) => BddPtr -> BddPtr -> Eff es Bool
-bddEq a b = ask >>= \m -> pure $ RSDD.bddEq m a b
+bddEq a b = ask >>= \m -> liftIO $ RSDD.bddEq m a b
+
+evalWmc :: (IOE :> es) => Eff (Reader WmcParams : es) a -> Eff es (WmcParams, a)
+evalWmc act = do
+  wmc <- RSDD.wmcParamsIO
+  a <- runReader wmc act
+  pure (wmc, a)
+
+runWmc :: (IOE :> es) => Eff (Reader WmcParams : es) a -> Eff es a
+runWmc act = do
+  wmc <- RSDD.wmcParamsIO
+  runReader wmc act
 
 varWeight :: (IOE :> es) => (Reader WmcParams :> es) => VarLabel -> Eff es (Maybe RSDD.Weight)
 varWeight a = flip RSDD.varWeight a <$> ask
